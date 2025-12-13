@@ -4,25 +4,10 @@ Production-ready server using Waitress
 
 import os
 from waitress import serve
-from flask_cors import CORS
 from app import create_app   # your app factory
 
-# Create the Flask app
+# Create the Flask app (CORS is already configured in app/__init__.py)
 app = create_app()
-
-# Configure CORS for production
-CORS(app, resources={
-    r"/api/*": {
-        "origins": [
-            "http://localhost:3000",  # Local development
-            "http://localhost:3001",  # Local development alternative
-            "https://jobscopeml.vercel.app",  # Production frontend
-        ],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": True
-    }
-})
 
 # Optional health check
 @app.route("/")

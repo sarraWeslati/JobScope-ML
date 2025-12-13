@@ -20,21 +20,24 @@ def create_app(config_class=Config):
     jwt.init_app(app)
     
     # Configure CORS for both development and production
+    # This MUST be before route registration
     frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
     
-    CORS(app, resources={
-        r"/api/*": {
-            "origins": [
-                "http://localhost:3000",
-                "http://localhost:3001",
-                "https://jobscopeml.vercel.app",
-                frontend_url,  # Dynamic from environment
-            ],
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"],
-            "supports_credentials": True
-        }
-    })
+    cors_config = {
+        "origins": [
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "https://jobscopeml.vercel.app",
+            frontend_url if frontend_url else "http://localhost:3000",
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+        "supports_credentials": True,
+        "max_age": 3600,
+        "expose_headers": ["Content-Type", "Authorization"]
+    }
+    
+    CORS(app, resources={r"/api/*": cors_config})
     
     # Register JWT error handlers
     @jwt.invalid_token_loader
