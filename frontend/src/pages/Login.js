@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import HealthCheck from '../components/HealthCheck';
 import './Auth.css';
 
 const Login = () => {
@@ -29,6 +30,7 @@ const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        <HealthCheck />
         <div className="logo-container">
           <img src="/logo.svg" alt="Job Scope Logo" className="logo" />
           <h1>Job Scope</h1>
