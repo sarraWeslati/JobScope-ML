@@ -1,0 +1,11 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Magnifying Glass Circle -->
+  <circle cx="90" cy="90" r="50" fill="none" stroke="#1a5f5f" stroke-width="6"/>
+  
+  <!-- Magnifying Glass Handle -->
+  <line x1="125" y1="125" x2="160" y2="160" stroke="#1a5f5f" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Person Icon inside magnifying glass -->
+  <circle cx="80" cy="70" r="12" fill="#4a9b8e"/>
+  <path d="M 65 95 Q 80 85 95 95 L 95 100 Q 80 110 65 100 Z" fill="#4a9b8e"/>
+</svg>
