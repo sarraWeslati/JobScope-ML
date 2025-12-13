@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from config import Config
+import os
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -17,7 +18,23 @@ def create_app(config_class=Config):
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
-    CORS(app)
+    
+    # Configure CORS for both development and production
+    frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+    
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": [
+                "http://localhost:3000",
+                "http://localhost:3001",
+                "https://jobscopeml.vercel.app",
+                frontend_url,  # Dynamic from environment
+            ],
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
+        }
+    })
     
     # Register JWT error handlers
     @jwt.invalid_token_loader

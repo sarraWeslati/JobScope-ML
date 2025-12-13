@@ -9,7 +9,20 @@ from app import create_app   # your app factory
 
 # Create the Flask app
 app = create_app()
-CORS(app)
+
+# Configure CORS for production
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "http://localhost:3000",  # Local development
+            "http://localhost:3001",  # Local development alternative
+            "https://jobscopeml.vercel.app",  # Production frontend
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
 
 # Optional health check
 @app.route("/")
