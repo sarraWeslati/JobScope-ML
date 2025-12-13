@@ -1,26 +1,35 @@
 """
 Production-ready server using Waitress
 """
+
+import os
 from waitress import serve
-from app import create_app
+from flask_cors import CORS
+from app import create_app   # your app factory
 
-import os 
-port = int(os.environ.get("PORT", 5000))
-app.run(host="0.0.0.0", port=port)
+# Create the Flask app
+app = create_app()
+CORS(app)
 
-if __name__ == '__main__':
-    print("="*60)
-    print("Starting Job Matching API with Waitress")
-    print("="*60)
-    
-    app = create_app()
-    
-    print("App created successfully")
-    print("Server starting on http://localhost:5000")
-    print("="*60)
-    print("Press Ctrl+C to stop")
-    print()
-    
-   # serve(app, host='0.0.0.0', port=5000, threads=4)
+# Optional health check
+@app.route("/")
+def home():
+    return {
+        "status": "API is running",
+        "service": "JobScope-ML"
+    }
 
-   
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+
+    print("=" * 60)
+    print("Starting JobScope-ML API with Waitress")
+    print(f"Running on port {port}")
+    print("=" * 60)
+
+    serve(
+        app,
+        host="0.0.0.0",
+        port=port,
+        threads=4
+    )
