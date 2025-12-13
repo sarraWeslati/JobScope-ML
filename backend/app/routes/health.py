@@ -1,15 +1,11 @@
-from flask import Blueprint, request, jsonify
-from app.services.matching_service import get_matching_service
+from flask import Blueprint, jsonify
 import os
 
 health_bp = Blueprint('health', __name__)
 
 @health_bp.route('/health', methods=['GET', 'OPTIONS'])
 def health_check():
-    """Health check endpoint with CORS headers"""
-    if request.method == 'OPTIONS':
-        return '', 204
-    
+    """Health check endpoint"""
     return jsonify({
         'status': 'ok',
         'message': 'Backend is running',

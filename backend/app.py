@@ -1,16 +1,8 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+# This file is deprecated - use app/__init__.py instead
+# Kept for backwards compatibility during migration
+from app import create_app
 
-def create_app():
-    app = Flask(__name__)
-    CORS(app)
+app = create_app()
 
-    @app.route("/auth/register", methods=["POST"])
-    def register():
-        data = request.json
-        return jsonify({
-            "message": "Register endpoint working",
-            "data": data
-        })
-
-    return app
+if __name__ == '__main__':
+    app.run(debug=False)

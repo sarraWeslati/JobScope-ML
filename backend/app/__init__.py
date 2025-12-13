@@ -1,14 +1,22 @@
-from flask import Flask
+from flask import Flask, after_this_request
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
-from flask_cors import CORS
 from config import Config
 import os
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
 jwt = JWTManager()
+
+def add_cors_headers(response):
+    """Manually add CORS headers to every response"""
+    response.headers['Access-Control-Allow-Origin'] = 'https://jobscopeml.vercel.app'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+    response.headers['Access-Control-Max-Age'] = '3600'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    return response
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -19,28 +27,27 @@ def create_app(config_class=Config):
     bcrypt.init_app(app)
     jwt.init_app(app)
     
-    # Configure CORS for both development and production
-    # This MUST be before route registration
-    frontend_url = os.environ.get('FRONTEND_URL', 'http://localhost:3000')
+    # Add CORS headers to all responses
+    @app.after_request
+    def after_request(response):
+        response.headers['Access-Control-Allow-Origin'] = 'https://jobscopeml.vercel.app'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+        response.headers['Access-Control-Max-Age'] = '3600'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        return response
     
-    cors_config = {
-        "origins": [
-            "http://localhost:3000",
-            "http://localhost:3001",
-            "https://jobscopeml.vercel.app",
-            frontend_url if frontend_url else "http://localhost:3000",
-        ],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
-        "supports_credentials": True,
-        "max_age": 3600,
-        "expose_headers": ["Content-Type", "Authorization"]
-    }
-    
-    CORS(app, resources={r"/api/*": cors_config})
-    
-    # Also apply CORS to root routes
-    CORS(app, resources={r"/*": cors_config})
+    # Handle OPTIONS requests explicitly
+    @app.before_request
+    def handle_preflight():
+        from flask import request
+        if request.method == 'OPTIONS':
+            response = app.make_default_options_response()
+            response.headers['Access-Control-Allow-Origin'] = 'https://jobscopeml.vercel.app'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
+            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
+            response.headers['Access-Control-Max-Age'] = '3600'
+            return response, 200
     
     # Register JWT error handlers
     @jwt.invalid_token_loader
