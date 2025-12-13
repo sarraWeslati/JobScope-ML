@@ -4,6 +4,10 @@ Production-ready server using Waitress
 from waitress import serve
 from app import create_app
 
+import os 
+port = int(os.environ.get("PORT", 5000))
+app.run(host="0.0.0.0", port=port)
+
 if __name__ == '__main__':
     print("="*60)
     print("Starting Job Matching API with Waitress")
@@ -17,4 +21,6 @@ if __name__ == '__main__':
     print("Press Ctrl+C to stop")
     print()
     
-    serve(app, host='0.0.0.0', port=5000, threads=4)
+   # serve(app, host='0.0.0.0', port=5000, threads=4)
+
+   
