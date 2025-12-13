@@ -1,33 +1,58 @@
 """
-Production-ready server using Waitress
+Enhanced production server with better logging and CORS
 """
 
 import os
+import sys
+import logging
 from waitress import serve
-from app import create_app   # your app factory
+from app import create_app
 
-# Create the Flask app (CORS is already configured in app/__init__.py)
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Create the Flask app
+logger.info("Creating Flask app...")
 app = create_app()
+logger.info("Flask app created successfully!")
 
-# Optional health check
-@app.route("/")
+# Log CORS configuration
+logger.info("CORS Configuration:")
+logger.info(f"  - Origins: http://localhost:3000, http://localhost:3001, https://jobscopeml.vercel.app")
+logger.info(f"  - Methods: GET, POST, PUT, DELETE, OPTIONS, PATCH")
+logger.info(f"  - Headers: Content-Type, Authorization, X-Requested-With")
+
+# Test route
+@app.route("/", methods=["GET"])
 def home():
+    logger.info("Health check requested")
     return {
         "status": "API is running",
-        "service": "JobScope-ML"
-    }
+        "service": "JobScope-ML",
+        "environment": os.environ.get('FLASK_ENV', 'development')
+    }, 200
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-
-    print("=" * 60)
-    print("Starting JobScope-ML API with Waitress")
-    print(f"Running on port {port}")
-    print("=" * 60)
-
-    serve(
-        app,
-        host="0.0.0.0",
-        port=port,
-        threads=4
-    )
+    
+    logger.info("=" * 70)
+    logger.info("Starting JobScope-ML API with Waitress")
+    logger.info(f"Port: {port}")
+    logger.info(f"Environment: {os.environ.get('FLASK_ENV', 'development')}")
+    logger.info("=" * 70)
+    
+    try:
+        serve(
+            app,
+            host="0.0.0.0",
+            port=port,
+            threads=4,
+            _quiet=False
+        )
+    except Exception as e:
+        logger.error(f"Failed to start server: {e}")
+        sys.exit(1)

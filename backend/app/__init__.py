@@ -39,6 +39,9 @@ def create_app(config_class=Config):
     
     CORS(app, resources={r"/api/*": cors_config})
     
+    # Also apply CORS to root routes
+    CORS(app, resources={r"/*": cors_config})
+    
     # Register JWT error handlers
     @jwt.invalid_token_loader
     def invalid_token_callback(error):
