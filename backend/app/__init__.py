@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from config import Config
 import os
+from flask_cors import CORS
 
 db = SQLAlchemy()
 bcrypt = Bcrypt()
@@ -26,11 +27,28 @@ def create_app(config_class=Config):
     db.init_app(app)
     bcrypt.init_app(app)
     jwt.init_app(app)
+    # Enable CORS for API routes
+    CORS(
+        app,
+        resources={r"/api/*": {"origins": [
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "https://jobscopeml.vercel.app"
+        ]}},
+        supports_credentials=True,
+        expose_headers=["Content-Type", "Authorization"],
+        allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+        max_age=3600
+    )
     
     # Add CORS headers to all responses
     @app.after_request
     def after_request(response):
-        response.headers['Access-Control-Allow-Origin'] = 'https://jobscopeml.vercel.app'
+        # Ensure preflight and actual responses include CORS headers
+        origin = response.headers.get('Access-Control-Allow-Origin')
+        if not origin:
+            response.headers['Access-Control-Allow-Origin'] = 'https://jobscopeml.vercel.app'
         response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
         response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
         response.headers['Access-Control-Max-Age'] = '3600'
@@ -47,6 +65,7 @@ def create_app(config_class=Config):
             response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
             response.headers['Access-Control-Max-Age'] = '3600'
+            response.headers['Access-Control-Allow-Credentials'] = 'true'
             return response, 200
     
     # Register JWT error handlers

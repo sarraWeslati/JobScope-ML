@@ -41,6 +41,16 @@ def home():
         "environment": os.environ.get('FLASK_ENV', 'development')
     }, 200
 
+# Root-level health to aid external checks
+@app.route("/health", methods=["GET"])
+def root_health():
+    return {
+        "status": "ok",
+        "message": "Backend is running",
+        "api_version": "1.0.0",
+        "environment": os.environ.get('FLASK_ENV', 'development')
+    }, 200
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     
