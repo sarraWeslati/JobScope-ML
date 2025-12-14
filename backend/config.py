@@ -9,8 +9,19 @@ class Config:
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or 'jwt-secret-key-change-in-production'
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///job_matching.db'
+    # MySQL Configuration
+    # Format: mysql+pymysql://username:password@host:port/database
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        f"mysql+pymysql://{os.environ.get('MYSQL_USER', 'root')}:" \
+        f"{os.environ.get('MYSQL_PASSWORD', '')}@" \
+        f"{os.environ.get('MYSQL_HOST', 'localhost')}:" \
+        f"{os.environ.get('MYSQL_PORT', '3306')}/" \
+        f"{os.environ.get('MYSQL_DATABASE', 'job_matching')}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_pre_ping': True,
+        'pool_recycle': 300,
+    }
     
     UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
     MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size

@@ -15,3 +15,5 @@ requests>=2.31.0
 flask
 waitress
 flask-cors
+pymysql==1.1.0
+cryptography==41.0.7
