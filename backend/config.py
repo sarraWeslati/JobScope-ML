@@ -10,10 +10,13 @@ class Config:
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
     
     # Database Configuration
-    # Set DATABASE_URL for external MySQL (PlanetScale, Railway, etc.)
+    # Set DATABASE_URL for external MySQL (Railway, etc.)
     # Or use MYSQL_* vars for local MySQL
     database_url = os.environ.get('DATABASE_URL')
     if database_url:
+        # Convert mysql:// to mysql+pymysql:// if needed
+        if database_url.startswith('mysql://'):
+            database_url = database_url.replace('mysql://', 'mysql+pymysql://', 1)
         SQLALCHEMY_DATABASE_URI = database_url
     elif os.environ.get('MYSQL_USER') or os.environ.get('MYSQL_PASSWORD'):
         # Local MySQL via individual vars
