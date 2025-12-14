@@ -11,12 +11,7 @@ bcrypt = Bcrypt()
 jwt = JWTManager()
 
 def add_cors_headers(response):
-    """Manually add CORS headers to every response"""
-    response.headers['Access-Control-Allow-Origin'] = 'https://jobscopeml.vercel.app'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
-    response.headers['Access-Control-Max-Age'] = '3600'
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    """Deprecated: CORS handled by Flask-CORS. Keep for backward-compat."""
     return response
 
 def create_app(config_class=Config):
@@ -30,11 +25,7 @@ def create_app(config_class=Config):
     # Enable CORS for API routes
     CORS(
         app,
-        resources={r"/api/*": {"origins": [
-            "http://localhost:3000",
-            "http://localhost:3001",
-            "https://jobscopeml.vercel.app"
-        ]}},
+        resources={r"/api/*": {"origins": Config.ALLOWED_ORIGINS}},
         supports_credentials=True,
         expose_headers=["Content-Type", "Authorization"],
         allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
@@ -42,17 +33,9 @@ def create_app(config_class=Config):
         max_age=3600
     )
     
-    # Add CORS headers to all responses
+    # Let Flask-CORS manage response headers; avoid overriding allowed origins
     @app.after_request
     def after_request(response):
-        # Ensure preflight and actual responses include CORS headers
-        origin = response.headers.get('Access-Control-Allow-Origin')
-        if not origin:
-            response.headers['Access-Control-Allow-Origin'] = 'https://jobscopeml.vercel.app'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
-        response.headers['Access-Control-Max-Age'] = '3600'
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
         return response
     
     # Handle OPTIONS requests explicitly
@@ -60,13 +43,8 @@ def create_app(config_class=Config):
     def handle_preflight():
         from flask import request
         if request.method == 'OPTIONS':
-            response = app.make_default_options_response()
-            response.headers['Access-Control-Allow-Origin'] = 'https://jobscopeml.vercel.app'
-            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS, PATCH'
-            response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Requested-With'
-            response.headers['Access-Control-Max-Age'] = '3600'
-            response.headers['Access-Control-Allow-Credentials'] = 'true'
-            return response, 200
+            # Rely on Flask-CORS to generate proper preflight response
+            return app.make_default_options_response(), 200
     
     # Register JWT error handlers
     @jwt.invalid_token_loader

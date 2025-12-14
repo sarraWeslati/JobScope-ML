@@ -20,3 +20,9 @@ class Config:
     CV_DATASET_PATH = os.path.join(os.path.dirname(__file__), 'data', 'dataset_cvs_cleaned.csv')
     
     CORS_HEADERS = 'Content-Type'
+    # Comma-separated list of allowed origins, e.g.
+    # "http://localhost:3000,http://localhost:3001,https://jobscopeml.vercel.app"
+    ALLOWED_ORIGINS = [origin.strip() for origin in (
+        os.environ.get('ALLOWED_ORIGINS') or 
+        'http://localhost:3000,http://localhost:3001,https://jobscopeml.vercel.app'
+    ).split(',') if origin.strip()]

@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// Use environment variable if provided, otherwise use localhost
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// Prefer relative API path in dev to leverage CRA proxy.
+// If REACT_APP_API_URL is set (e.g., production), use it.
+const API_URL = process.env.REACT_APP_API_URL || '';
 
 const api = axios.create({
   baseURL: `${API_URL}/api`,
@@ -25,7 +26,7 @@ api.interceptors.request.use(
 // Auth services
 export const authService = {
   register: async (email, password, fullName) => {
-    const response = await api.post('/auth/register', {
+    const response = await axios.post(`${API_URL}/api/auth/register`, {
       email,
       password,
       full_name: fullName,
@@ -38,7 +39,7 @@ export const authService = {
   },
 
   login: async (email, password) => {
-    const response = await api.post('/auth/login', { email, password });
+    const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
     if (response.data.access_token) {
       localStorage.setItem('token', response.data.access_token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
