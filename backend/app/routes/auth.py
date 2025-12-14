@@ -2,8 +2,24 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from app import db, bcrypt
 from app.models.user import User
+import os
 
 auth_bp = Blueprint('auth', __name__)
+
+# Check if DATABASE_URL is explicitly set
+if os.environ.get('DATABASE_URL'):
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL')
+elif os.environ.get('MYSQL_USER') or os.environ.get('MYSQL_PASSWORD'):
+    # MySQL configured via individual vars
+    SQLALCHEMY_DATABASE_URI = \
+        f"mysql+pymysql://{os.environ.get('MYSQL_USER', 'root')}:" \
+        f"{os.environ.get('MYSQL_PASSWORD', '')}@" \
+        f"{os.environ.get('MYSQL_HOST', 'localhost')}:" \
+        f"{os.environ.get('MYSQL_PORT', '3306')}/" \
+        f"{os.environ.get('MYSQL_DATABASE', 'job_matching')}"
+else:
+    # Fallback to SQLite
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///job_matching.db'
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
